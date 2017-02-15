@@ -147,6 +147,11 @@ getPiece colIndex rowIndex rows =
 
 checkFourPieces : Bool -> Bool -> Piece -> List (List Piece) -> Bool
 checkFourPieces checkRows checkCols playerPiece rows =
+    {- If you want to check just horizontal four pieces to see if there are
+       any matches, then you would call it like this:
+           `checkFourPieces True False playerPiece rows`
+       If you want to check diagonals, you set both checkRows and checkCols to True.
+    -}
     let
         ( rowsInt, rowEnd ) =
             if checkRows then
@@ -181,6 +186,10 @@ checkFourPieces checkRows checkCols playerPiece rows =
                                         , getPiece (colIndex + 3 * colsInt) (rowIndex + 3 * rowsInt) rows
                                         ]
 
+                                    {- We have to also check the right diagonal four pieces. If we exclude
+                                       this right diagonal check, then the fourPieces variable only checks
+                                       the left diagonal.
+                                    -}
                                     rightDiagonalFourPieces =
                                         [ getPiece (colIndex + 3) rowIndex rows
                                         , getPiece (colIndex + 2) (rowIndex + 1) rows
@@ -196,6 +205,7 @@ checkFourPieces checkRows checkCols playerPiece rows =
 
 isWin : List (List Piece) -> Player -> Bool
 isWin rows player =
+    {- Checks if the player passed in got four in a row. -}
     let
         playerPiece =
             playerToPiece player
