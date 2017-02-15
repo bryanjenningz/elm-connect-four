@@ -51,6 +51,7 @@ initModel =
     Model initRows P1 Nothing
 
 
+view : Model -> Html Msg
 view model =
     div []
         [ div [ class "text-center" ] [ button [ class "btn btn-primary", onClick Restart ] [ text "New Game" ] ]
@@ -90,6 +91,7 @@ winnerText winner =
             ""
 
 
+pieceStyle : Piece -> Attribute msg
 pieceStyle piece =
     let
         pieceColor =
@@ -114,6 +116,7 @@ pieceStyle piece =
             ]
 
 
+outerPieceStyle : Attribute msg
 outerPieceStyle =
     style
         [ ( "width", "50px" )
@@ -222,6 +225,7 @@ isWin rows player =
         horizontalWin || verticalWin || diagonalWin
 
 
+update : Msg -> Model -> Model
 update msg model =
     case msg of
         AddPiece colIndex ->
