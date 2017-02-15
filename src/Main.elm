@@ -29,6 +29,12 @@ type Player
     | P2
 
 
+type WinType
+    = Columns
+    | Rows
+    | Diagonals
+
+
 type alias Model =
     { rows : List (List Piece)
     , turn : Player
@@ -148,32 +154,37 @@ getPiece colIndex rowIndex rows =
         |> Maybe.withDefault Empty
 
 
-checkFourPieces : Bool -> Bool -> Piece -> List (List Piece) -> Bool
-checkFourPieces checkRows checkCols playerPiece rows =
-    {- If you want to check just horizontal four pieces to see if there are
-       any matches, then you would call it like this:
-           `checkFourPieces True False playerPiece rows`
-       If you want to check diagonals, you set both checkRows and checkCols to True.
-    -}
+checkFourPieces : WinType -> Piece -> List (List Piece) -> Bool
+checkFourPieces winType playerPiece rows =
     let
-        ( rowsInt, rowEnd ) =
-            if checkRows then
-                ( 1, List.length rows - 4 )
-            else
-                ( 0, List.length rows - 1 )
+        colLength =
+            rows
+                |> List.head
+                |> Maybe.withDefault []
+                |> List.length
 
-        ( colsInt, colEnd ) =
-            let
-                colLength =
-                    rows
-                        |> List.head
-                        |> Maybe.withDefault []
-                        |> List.length
-            in
-                if checkCols then
-                    ( 1, colLength - 4 )
-                else
-                    ( 0, colLength - 1 )
+        { rowsInt, rowEnd, colsInt, colEnd } =
+            case winType of
+                Columns ->
+                    { rowsInt = 0
+                    , rowEnd = List.length rows - 1
+                    , colsInt = 1
+                    , colEnd = colLength - 4
+                    }
+
+                Rows ->
+                    { rowsInt = 1
+                    , rowEnd = List.length rows - 4
+                    , colsInt = 0
+                    , colEnd = colLength - 1
+                    }
+
+                Diagonals ->
+                    { rowsInt = 1
+                    , rowEnd = List.length rows - 4
+                    , colsInt = 1
+                    , colEnd = colLength - 4
+                    }
     in
         List.range 0 rowEnd
             |> List.any
@@ -208,19 +219,18 @@ checkFourPieces checkRows checkCols playerPiece rows =
 
 isWin : List (List Piece) -> Player -> Bool
 isWin rows player =
-    {- Checks if the player passed in got four in a row. -}
     let
         playerPiece =
             playerToPiece player
 
         horizontalWin =
-            checkFourPieces True False playerPiece rows
+            checkFourPieces Columns playerPiece rows
 
         verticalWin =
-            checkFourPieces False True playerPiece rows
+            checkFourPieces Rows playerPiece rows
 
         diagonalWin =
-            checkFourPieces True True playerPiece rows
+            checkFourPieces Diagonals playerPiece rows
     in
         horizontalWin || verticalWin || diagonalWin
 
